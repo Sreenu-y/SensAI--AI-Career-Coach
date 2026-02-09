@@ -22,7 +22,6 @@ import {
   DropdownMenuContent,
   DropdownMenuGroup,
   DropdownMenuItem,
-  DropdownMenuLabel,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
@@ -91,6 +90,9 @@ const Header = () => {
             <SignInButton>
               <Button variant="outline">Sign In</Button>
             </SignInButton>
+            <SignUpButton>
+              <Button variant="outline">Sign Up</Button>
+            </SignUpButton>
           </SignedOut>
           <SignedIn>
             <UserButton
