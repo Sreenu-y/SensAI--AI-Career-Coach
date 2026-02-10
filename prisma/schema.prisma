@@ -1,0 +1,117 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../lib/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+
+}
+
+model User {
+  id            String @id @default(uuid())
+  clerkUserId   String @unique 
+  email         String @unique
+  name          String?
+  imageUrl      String?
+  industry      String? //combined industry-subIndustry (tech -> software development)
+
+  industryInsight Industryinsight? @relation(fields: [industry], references: [industry])
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  //profile fields 
+  bio           String?
+  experince     Int?      // years of experience
+  skills        String[] //Array of skills
+
+  assessments   Assessment[]
+  resume        Resume?
+  coverLetter   CoverLetter[]
+
+}
+
+model Assessment {
+  id          String @id @default(cuid())
+  userId      String 
+  user        User   @relation(fields: [userId], references: [id])
+  quizScore   Float  //overall score
+  questions   Json[] //it stores the {questions, answers, userAnswers, isCorrect}
+  category    String // "technical", "behavioral"
+  improvmentTip String? //AI-generated improvement tip
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([userId])
+}
+
+model Resume {
+  id          String @id @default(cuid())
+  userId      String @unique //one resume per user
+  user        User   @relation(fields: [userId], references: [id])
+  content     String @db.Text //Markdown content
+  atsScore    Float?
+  feedack     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CoverLetter {
+  id          String @id @default(cuid())
+  userId      String 
+  user        User   @relation(fields: [userId], references: [id])
+  content     String //markdown content
+  jobDescription  String?
+  companyName String  //Name of the company applying to
+  jobTitle    String  //Position applying for
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+
+model Industryinsight {
+  id          String @id @default(cuid())
+  industry    String @unique //Industry this time belongs to (e.g., tech-software-development)
+
+  // Users in this industry
+  users       User[]
+
+  // Salary data
+  salaryRanges Json[] //Array of { role: String, min: float, max:float, median: float, location: String }
+
+  // Industry Trends
+  growthRate  Float  //Industry Growth Rate
+  demandLevel DemandLevel //"High", "Medium", "Low"
+  topSkills   String[]  //Most in-demand skills
+
+  // Market conditions
+  marketOutlook MarketOutlook //positive, negative, neutral
+  keyTrends     String[]
+
+  // Learning Suggestions
+  recommendedSkills String[] //Skills recommended for the Industry
+
+
+  lastUpdated DateTime @default(now())
+  nextUpdated DateTime //schedule updated time
+
+  @@index([industry])
+}
+
+enum DemandLevel {
+  HIGH 
+  MEDIUM 
+  LOW 
+}
+
+enum MarketOutlook {
+  POSITIVE 
+  NEUTRAL 
+  NEGATIVE 
+}
