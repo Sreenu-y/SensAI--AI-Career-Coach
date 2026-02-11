@@ -193,7 +193,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/*  */}
+      {/*  Journey Button */}
       <section className="w-full">
         <div className="mx-auto py-24 gradient rounded-lg">
           <div className="flex flex-col items-center justify-center space-y-4 text-center max-w-3xl mx-auto">
