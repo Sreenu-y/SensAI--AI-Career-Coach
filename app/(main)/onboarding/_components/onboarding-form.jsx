@@ -88,13 +88,14 @@ const OnboardingForm = ({ industries }) => {
               <Select
                 onValueChange={(value) => {
                   setValue("industry", value);
+                  setValue("subIndustry", "");
                   setSelectedIndustry(
                     industries.find((ind) => ind.id === value),
                   );
                 }}
               >
                 <SelectTrigger id="industry" className="w-full">
-                  <SelectValue placeholder="Select a industry" />
+                  <SelectValue placeholder="Select an industry" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectGroup>
