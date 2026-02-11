@@ -27,29 +27,24 @@ export async function updateUser(data) {
   try {
     const result = await db.$transaction(
       async (tx) => {
-        // find if the industry exist
-        let industryInsight = await tx.industryInsight.findUnique({
+        // Atomically upsert the industry insight to avoid race conditions
+        const industryInsight = await tx.industryInsight.upsert({
           where: {
             industry: validatedData.industry,
           },
+          update: {},
+          create: {
+            industry: validatedData.industry,
+            salaryRanges: [], //Default empty array
+            growthRate: 0, //Default value
+            demandLevel: "MEDIUM", //Default value
+            topSkills: [], //Default empty array
+            marketOutlook: "NEUTRAL", //Default value
+            keyTrends: [], //Default empty array
+            recommendedSkills: [], //Default empty array
+            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1week from now
+          },
         });
-
-        // if not, create it with default values - will replace it with ai later
-        if (!industryInsight) {
-          industryInsight = await tx.industryInsight.create({
-            data: {
-              industry: validatedData.industry,
-              salaryRanges: [], //Default empty array
-              growthRate: 0, //Default value
-              demandLevel: "MEDIUM", //Default value
-              topSkills: [], //Default empty array
-              marketOutlook: "NEUTRAL", //Default value
-              keyTrends: [], //Default empty array
-              recommendedSkills: [], //Default empty array
-              nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1week from now
-            },
-          });
-        }
 
         // update the user
         const updateUser = await tx.user.update({
