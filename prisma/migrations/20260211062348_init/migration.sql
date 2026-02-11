@@ -15,7 +15,7 @@ CREATE TABLE "User" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "bio" TEXT,
-    "experince" INTEGER,
+    "experience" INTEGER,
     "skills" TEXT[],
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("id")
@@ -28,7 +28,7 @@ CREATE TABLE "Assessment" (
     "quizScore" DOUBLE PRECISION NOT NULL,
     "questions" JSONB[],
     "category" TEXT NOT NULL,
-    "improvmentTip" TEXT,
+    "improvementTip" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -41,7 +41,7 @@ CREATE TABLE "Resume" (
     "userId" TEXT NOT NULL,
     "content" TEXT NOT NULL,
     "atsScore" DOUBLE PRECISION,
-    "feedack" TEXT,
+    "feedback" TEXT,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -63,7 +63,7 @@ CREATE TABLE "CoverLetter" (
 );
 
 -- CreateTable
-CREATE TABLE "Industryinsight" (
+CREATE TABLE "IndustryInsight" (
     "id" TEXT NOT NULL,
     "industry" TEXT NOT NULL,
     "salaryRanges" JSONB[],
@@ -74,9 +74,9 @@ CREATE TABLE "Industryinsight" (
     "keyTrends" TEXT[],
     "recommendedSkills" TEXT[],
     "lastUpdated" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "nextUpdated" TIMESTAMP(3) NOT NULL,
+    "nextUpdate" TIMESTAMP(3) NOT NULL,
 
-    CONSTRAINT "Industryinsight_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "IndustryInsight_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
@@ -92,13 +92,13 @@ CREATE INDEX "Assessment_userId_idx" ON "Assessment"("userId");
 CREATE UNIQUE INDEX "Resume_userId_key" ON "Resume"("userId");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Industryinsight_industry_key" ON "Industryinsight"("industry");
+CREATE UNIQUE INDEX "IndustryInsight_industry_key" ON "IndustryInsight"("industry");
 
 -- CreateIndex
-CREATE INDEX "Industryinsight_industry_idx" ON "Industryinsight"("industry");
+CREATE INDEX "IndustryInsight_industry_idx" ON "IndustryInsight"("industry");
 
 -- AddForeignKey
-ALTER TABLE "User" ADD CONSTRAINT "User_industry_fkey" FOREIGN KEY ("industry") REFERENCES "Industryinsight"("industry") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "User" ADD CONSTRAINT "User_industry_fkey" FOREIGN KEY ("industry") REFERENCES "IndustryInsight"("industry") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Assessment" ADD CONSTRAINT "Assessment_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

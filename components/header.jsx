@@ -40,6 +40,7 @@ const Header = async () => {
             className="h-12 py-1 w-auto object-contain"
           />
         </Link>
+
         <div className="flex items-center space-x-2 md:space-x-4">
           <SignedIn>
             <Link href="/dashboard">
