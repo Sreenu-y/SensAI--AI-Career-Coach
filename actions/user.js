@@ -3,6 +3,7 @@
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { onboardingSchema } from "@/app/lib/schema";
+import { generateAIInsights } from "./dashboard";
 
 export async function updateUser(data) {
   const { userId } = await auth();
@@ -25,24 +26,25 @@ export async function updateUser(data) {
   if (!user) throw new Error("User not found");
 
   try {
+    let industryInsight = await db.industryInsight.findUnique({
+      where: { industry: validatedData.industry },
+    });
+
+    let insights = null;
+
+    if (!industryInsight) {
+      insights = await generateAIInsights(validatedData.industry);
+    }
+
     const result = await db.$transaction(
       async (tx) => {
-        // Atomically upsert the industry insight to avoid race conditions
         const industryInsight = await tx.industryInsight.upsert({
-          where: {
-            industry: validatedData.industry,
-          },
-          update: {},
+          where: { industry: validatedData.industry },
+          update: {}, // do nothing if exists
           create: {
             industry: validatedData.industry,
-            salaryRanges: [], //Default empty array
-            growthRate: 0, //Default value
-            demandLevel: "MEDIUM", //Default value
-            topSkills: [], //Default empty array
-            marketOutlook: "NEUTRAL", //Default value
-            keyTrends: [], //Default empty array
-            recommendedSkills: [], //Default empty array
-            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 1week from now
+            ...insights,
+            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
           },
         });
 
@@ -59,7 +61,7 @@ export async function updateUser(data) {
           },
         });
 
-        return { updateUser, industryInsight };
+        return { updatedUser: updateUser, industryInsight };
       },
       {
         timeout: 10000, // default: 5000 (since we are using AI-Logic we are keeping it as 10000)
