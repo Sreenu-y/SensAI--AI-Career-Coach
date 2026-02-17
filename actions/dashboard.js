@@ -11,23 +11,23 @@ const ai = new GoogleGenAI({
 export const generateAIInsights = async (industry) => {
   try {
     const prompt = `
-      Analyze the current state of the ${industry} industry and return ONLY valid JSON:
-
-      {
-        "salaryRanges": [
-          { "role": "string", "min": number, "max": number, "median": number, "location": "string" }
-        ],
-        "growthRate": number,
-        "demandLevel": "HIGH" | "MEDIUM" | "LOW",
-        "topSkills": ["skill1", "skill2"],
-        "marketOutlook": "POSITIVE" | "NEGATIVE" | "NEUTRAL",
-        "keyTrends": ["trend1", "trend2"],
-        "recommendedSkills": ["skill1", "skill2"]
-      }
-
-      No markdown.
-      No explanation.
-      Only pure JSON.
+       Analyze the current state of the ${industry} industry and provide insights in ONLY the following JSON format without any additional notes or explanations:
+          {
+            "salaryRanges": [
+              { "role": "string", "min": number, "max": number, "median": number, "location": "string" }
+            ],
+            "growthRate": number,
+            "demandLevel": "HIGH" | "MEDIUM" | "LOW",
+            "topSkills": ["skill1", "skill2"],
+            "marketOutlook": "POSITIVE" | "NEUTRAL" | "NEGATIVE",
+            "keyTrends": ["trend1", "trend2"],
+            "recommendedSkills": ["skill1", "skill2"]
+          }
+          
+          IMPORTANT: Return ONLY the JSON. No additional text, notes, or markdown formatting.
+          Include at least 5 common roles for salary ranges.
+          Growth rate should be a percentage.
+          Include at least 5 skills and trends.
     `;
 
     const response = await ai.models.generateContent({
@@ -41,7 +41,9 @@ export const generateAIInsights = async (industry) => {
       throw new Error("Empty Gemini response");
     }
 
-    return JSON.parse(text);
+    const cleanedText = text.replace(/```(?:json)?\n?/g, "").trim();
+
+    return JSON.parse(cleanedText);
   } catch (error) {
     console.error("Gemini Error:", error);
     throw error;
