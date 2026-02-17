@@ -111,12 +111,12 @@ export async function saveQuizResult(questions, answers, score) {
         contents: improvementPrompt,
       });
 
-      const text = result.text.trim();
+      const text = result.text;
       if (!text) throw new Error("Empty Gemini response");
-      improvementTip = text;
+      improvementTip = text.trim();
     } catch (error) {
-      console.error("Error Saving Quiz Result", error);
-      throw new Error("Error Saving Quiz Result");
+      console.error("Error Generating Improvement Tip", error);
+      throw new Error("Error Generating Improvement Tip");
     }
   }
   try {
