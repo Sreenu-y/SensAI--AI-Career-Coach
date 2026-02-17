@@ -1,3 +1,5 @@
+"use server";
+
 import { db } from "@/lib/prisma";
 import { auth } from "@clerk/nextjs/server";
 import { GoogleGenAI } from "@google/genai";
@@ -10,7 +12,7 @@ export async function generateQuiz() {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
 
-  const user = db.user.findUnique({
+  const user = await db.user.findUnique({
     where: {
       clerkUserId: userId,
     },
@@ -59,7 +61,7 @@ export async function generateQuiz() {
 
     return quiz.questions;
   } catch (error) {
-    console.log("Error generating quiz: ", error);
+    console.error("Error generating quiz: ", error);
     throw new Error("Error generating quiz");
   }
 }
@@ -67,7 +69,7 @@ export async function generateQuiz() {
 export async function saveQuizResult(questions, answers, score) {
   const { userId } = await auth();
   if (!userId) throw new Error("Unauthorized");
-  const user = db.user.findUnique({
+  const user = await db.user.findUnique({
     where: {
       clerkUserId: userId,
     },
@@ -82,10 +84,10 @@ export async function saveQuizResult(questions, answers, score) {
     explanation: q.explanation,
   }));
 
-  const wrongAnswer = questionResult.filter((q) => !q.isCorrect);
+  const wrongAnswers = questionResult.filter((q) => !q.isCorrect);
   let improvementTip = null;
-  if (wrongAnswer.length > 0) {
-    const wrongAnswerText = wrongAnswers
+  if (wrongAnswers.length > 0) {
+    const wrongAnswersText = wrongAnswers
       .map(
         (q) =>
           `Question: "${q.question}"\nCorrect Answer: "${q.answer}"\nUser Answer: "${q.userAnswer}"`,
@@ -95,7 +97,7 @@ export async function saveQuizResult(questions, answers, score) {
     const improvementPrompt = `
       The user got the following ${user.industry} technical interview questions wrong:
       
-      ${wrongQuestionsText}
+      ${wrongAnswersText}
       
       Based on these mistakes, provide a concise, specific improvement tip.
       Focus on the knowledge gaps revealed by these wrong answers.
@@ -104,7 +106,7 @@ export async function saveQuizResult(questions, answers, score) {
       `;
 
     try {
-      const result = ai.models.generateContent({
+      const result = await ai.models.generateContent({
         model: "gemini-2.5-flash-lite",
         contents: improvementPrompt,
       });
@@ -113,25 +115,24 @@ export async function saveQuizResult(questions, answers, score) {
       if (!text) throw new Error("Empty Gemini response");
       improvementTip = text;
     } catch (error) {
-      console.log("Error Saving Quiz Result", error);
+      console.error("Error Saving Quiz Result", error);
       throw new Error("Error Saving Quiz Result");
     }
+  }
+  try {
+    const assessment = await db.assessment.create({
+      data: {
+        userId: user.id,
+        quizScore: score,
+        questions: questionResult,
+        category: "Technical",
+        improvementTip,
+      },
+    });
 
-    try {
-      const assessment = await db.assessment.create({
-        data: {
-          userId: user.id,
-          quizScore: score,
-          questions: questionResult,
-          category: "Technical",
-          improvementTip,
-        },
-      });
-
-      return assessment;
-    } catch (error) {
-      console.log("Error Saving Assessment in DB", error);
-      throw new Error("Error Saving Assessment in DB");
-    }
+    return assessment;
+  } catch (error) {
+    console.error("Error Saving Assessment in DB", error);
+    throw new Error("Error Saving Assessment in DB");
   }
 }
