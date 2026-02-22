@@ -31,7 +31,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     gap: 10,
   },
-  heading: {
+  sectionHeading: {
     fontSize: 12,
     fontWeight: "bold",
     marginTop: 15,
@@ -41,6 +41,13 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: "#000",
     paddingBottom: 2,
+  },
+  subHeading: {
+    fontSize: 11,
+    fontWeight: "bold",
+    marginTop: 10,
+    marginBottom: 5,
+    color: "#000",
   },
   paragraph: {
     marginBottom: 8,
@@ -94,7 +101,8 @@ function InlineContent({ tokens }) {
             </Text>
           );
         if (t.type === "br") return <Text key={i}>{"\n"}</Text>;
-        if (t.type === "escape" || t.type === "html") return <Text key={i}>{t.text}</Text>;
+        if (t.type === "escape" || t.type === "html")
+          return <Text key={i}>{t.text}</Text>;
         if (t.tokens) return <InlineContent key={i} tokens={t.tokens} />;
         return <Text key={i}>{t.raw || t.text || ""}</Text>;
       })}
@@ -116,7 +124,9 @@ function BlockContent({ token }) {
         return <Text style={styles.name}>{token.text}</Text>;
       }
       return (
-        <View style={styles.heading}>
+        <View
+          style={token.depth === 2 ? styles.sectionHeading : styles.subHeading}
+        >
           <Text>
             <InlineContent tokens={token.tokens} />
           </Text>
@@ -189,12 +199,7 @@ function BlockContent({ token }) {
 }
 
 // Helper to group header elements
-function ResumeHeader({ tokens }) {
-  const nameToken = tokens.find(
-    (t) => t.type === "heading" && (t.depth === 1 || t.depth === 2),
-  );
-  const contactToken = tokens.find((t, i) => i > 0 && t.type === "paragraph");
-
+function ResumeHeader({ nameToken, contactToken }) {
   if (!nameToken && !contactToken) return null;
 
   return (
@@ -224,24 +229,24 @@ export default function ResumePDFDocument({ content }) {
     tokens = [];
   }
 
+  // Find header tokens
+  const nameTokenIndex = tokens.findIndex(
+    (t) => t.type === "heading" && (t.depth === 1 || t.depth === 2),
+  );
+  const contactTokenIndex = tokens.findIndex(
+    (t, i) => i > 0 && t.type === "paragraph",
+  );
+
+  const nameToken = nameTokenIndex !== -1 ? tokens[nameTokenIndex] : null;
+  const contactToken =
+    contactTokenIndex !== -1 ? tokens[contactTokenIndex] : null;
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
-        <ResumeHeader tokens={tokens} />
+        <ResumeHeader nameToken={nameToken} contactToken={contactToken} />
         {tokens
-          .filter((token, i) => {
-            // Skip the first H1/H2 and the first paragraph if we found them for the header
-            const isName =
-              token.type === "heading" && (token.depth === 1 || token.depth === 2);
-            const isFirstContact =
-              token.type === "paragraph" &&
-              tokens.findIndex((t) => t.type === "paragraph") === i &&
-              tokens.findIndex(
-                (t) => t.type === "heading" && (t.depth === 1 || t.depth === 2),
-              ) < i;
-
-            return !isName && !isFirstContact;
-          })
+          .filter((_, i) => i !== nameTokenIndex && i !== contactTokenIndex)
           .map((token, i) => (
             <BlockContent key={i} token={token} />
           ))}
