@@ -16,6 +16,10 @@ export async function generateQuiz() {
     where: {
       clerkUserId: userId,
     },
+    select: {
+      industry: true,
+      skills: true,
+    },
   });
 
   if (!user) throw new Error("User not found!");

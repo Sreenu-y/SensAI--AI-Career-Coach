@@ -57,6 +57,7 @@ model CoverLetter {
   jobDescription String?
   companyName    String
   jobTitle       String
+  status         String   @default("draft") // draft, completed
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
   user           User     @relation(fields: [userId], references: [id])
