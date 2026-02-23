@@ -67,7 +67,7 @@
 ### 1️⃣ Clone the Repository
 
 ```bash
-git clone https://github.com/your-username/sensai.git
+git clone https://github.com/Sreenu-y/SensAI--AI-Career-Coach.git
 cd sensai
 ```
 
@@ -102,7 +102,7 @@ DATABASE_URL=your_neon_database_url
 GEMINI_API_KEY=your_gemini_api_key
 ```
 
-⚠️ Never commit `.env.local` to GitHub.
+⚠️ Never commit `.env` to GitHub.
 
 ---
 
