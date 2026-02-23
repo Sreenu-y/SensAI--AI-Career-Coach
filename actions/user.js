@@ -38,18 +38,22 @@ export async function updateUser(data) {
 
     const result = await db.$transaction(
       async (tx) => {
-        const industryInsight = await tx.industryInsight.upsert({
-          where: { industry: validatedData.industry },
-          update: {}, // do nothing if exists
-          create: {
-            industry: validatedData.industry,
-            ...insights,
-            nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-          },
-        });
+        let currentIndustryInsight = industryInsight;
+
+        if (insights) {
+          currentIndustryInsight = await tx.industryInsight.upsert({
+            where: { industry: validatedData.industry },
+            update: {}, // do nothing if exists
+            create: {
+              industry: validatedData.industry,
+              ...insights,
+              nextUpdate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
+            },
+          });
+        }
 
         // update the user
-        const updateUser = await tx.user.update({
+        const updatedUser = await tx.user.update({
           where: {
             id: user.id,
           },
@@ -61,7 +65,7 @@ export async function updateUser(data) {
           },
         });
 
-        return { updatedUser: updateUser, industryInsight };
+        return { updatedUser, industryInsight: currentIndustryInsight };
       },
       {
         timeout: 10000, // default: 5000 (since we are using AI-Logic we are keeping it as 10000)
