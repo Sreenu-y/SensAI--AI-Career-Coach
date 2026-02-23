@@ -397,13 +397,26 @@ export default function ResumeBuilder({ initialContent }) {
               </span>
             </div>
           )}
-          <div className="border rounded-lg">
-            <MDEditor
-              value={previewContent}
-              onChange={setPreviewContent}
-              minHeight={800}
-              preview={resumeMode}
-            />
+          <div className="border rounded-lg" data-color-mode="light">
+            {resumeMode === "preview" ? (
+              <MDEditor.Markdown
+                source={previewContent}
+                style={{
+                  padding: 24,
+                  minHeight: 800,
+                  backgroundColor: "transparent",
+                  color: "inherit",
+                }}
+              />
+            ) : (
+              <MDEditor
+                value={previewContent}
+                onChange={setPreviewContent}
+                minHeight={800}
+                preview="edit"
+                extraCommands={[]}
+              />
+            )}
           </div>
         </TabsContent>
       </Tabs>

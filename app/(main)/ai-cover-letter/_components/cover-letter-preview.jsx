@@ -7,8 +7,16 @@ import "@uiw/react-markdown-preview/markdown.css";
 
 const CoverLetterPreview = ({ content }) => {
   return (
-    <div className="py-4">
-      <MDEditor value={content} preview="preview" minHeight={700} />
+    <div className="py-4" data-color-mode="light">
+      <MDEditor.Markdown
+        source={content}
+        style={{
+          padding: 24,
+          minHeight: 700,
+          backgroundColor: "transparent",
+          color: "inherit",
+        }}
+      />
     </div>
   );
 };
