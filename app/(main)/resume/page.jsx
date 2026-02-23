@@ -6,7 +6,7 @@ const ResumePage = async () => {
   const resume = await getResume();
 
   return (
-    <div className="min-h-screen overflow-y-auto container mx-auto py-6">
+    <div className="container mx-auto py-6">
       <ResumeBuilder initialContent={resume?.content} />
     </div>
   );

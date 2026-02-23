@@ -8,7 +8,7 @@ const InterviewPage = async () => {
   const assessments = await getAssessments();
 
   return (
-    <div className="min-h-screen overflow-y-auto">
+    <div>
       <div className="flex items-center justify-between mb-5">
         <h1 className="text-6xl font-bold gradient-title">
           Interview Preparation
