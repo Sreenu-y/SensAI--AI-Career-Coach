@@ -404,8 +404,6 @@ export default function ResumeBuilder({ initialContent }) {
                 style={{
                   padding: 24,
                   minHeight: 800,
-                  backgroundColor: "transparent",
-                  color: "inherit",
                 }}
               />
             ) : (

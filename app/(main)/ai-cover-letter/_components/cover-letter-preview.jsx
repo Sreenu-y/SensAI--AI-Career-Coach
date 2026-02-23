@@ -13,8 +13,6 @@ const CoverLetterPreview = ({ content }) => {
         style={{
           padding: 24,
           minHeight: 700,
-          backgroundColor: "transparent",
-          color: "inherit",
         }}
       />
     </div>
