@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import MDEditor from "@uiw/react-md-editor";
+import "@uiw/react-md-editor/markdown-editor.css";
+import "@uiw/react-markdown-preview/markdown.css";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
@@ -399,7 +401,7 @@ export default function ResumeBuilder({ initialContent }) {
             <MDEditor
               value={previewContent}
               onChange={setPreviewContent}
-              height={800}
+              minHeight={800}
               preview={resumeMode}
             />
           </div>
